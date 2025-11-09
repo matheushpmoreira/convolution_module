@@ -1,7 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.convolution_pack.all;          -- Para log2_ceil e address_length
+use work.convolution_pack.all;
 
 entity address_calculator is
     generic(

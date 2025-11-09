@@ -1,18 +1,14 @@
-#!/bin/bash
-set -e
+ghdl -a ./src/convolution_pack.vhdl
+ghdl -a ./src/generic_counter.vhdl
+ghdl -a ./src/offset_indexer.vhdl
+ghdl -a ./src/address_calculator.vhdl
+ghdl -a ./src/kernel_indexer.vhdl
+ghdl -a ./src/multi.vhdl
+ghdl -a ./src/bo.vhdl
 
-echo "🔧 Compilando blocos..."
-ghdl -a src/convolution_pack.vhdl
-ghdl -a src/generic_counter.vhdl
-ghdl -a src/offset_indexer.vhdl
-ghdl -a src/address_calculator.vhdl
-ghdl -a src/bloco_indexador.vhdl
-ghdl -a tb/tb_bloco_indexador.vhdl
+ghdl -a ./tb/tb_bo.vhdl
 
-echo "⚙️  Ligando entidades..."
-ghdl -e tb_bloco_indexador
+ghdl -e tb_bo
 
-echo "🚀 Rodando simulação..."
-ghdl -r tb_bloco_indexador --stop-time=1000ns --vcd=wave.vcd
+ghdl -r tb_bo --vcd=tb_bo.vcd --stop-time=1000ns
 
-echo "✅ Simulação completa. Arquivo gerado: wave.vcd"
