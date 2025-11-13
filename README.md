@@ -14,12 +14,12 @@
 
 ## Descrição do Projeto
 
-O projeto consiste no desenvolvimento de um **módulo digital de convolução** para aplicação de filtros em imagens em escala de cinza (grayscale) de **8 bits (0–255)**.
+O projeto consiste no desenvolvimento de um **módulo digital de convolução** para aplicação de filtros em imagens em **escala de cinza** (grayscale) de **8 bits (0–255)**.
 
-O sistema realiza o **cálculo da convolução** de cada pixel da imagem com um **kernel 3×3**, a fim de aplicar filtros como *blur*, *sharpen* ou *edge detection*.
+O sistema realiza o **cálculo da convolução** de cada pixel da imagem com um **kernel 3×3**, a fim de aplicar filtros inteiros como *sharpen* ou *sobel* e *emboss*.
 
 A arquitetura foi dividida em **módulos reutilizáveis e parametrizáveis**, permitindo que o circuito aceite imagens de tamanhos genéricos `img_width × img_height`.  
-O kernel é armazenado em uma **ROM** de 9 valores (um para cada posição da janela 3×3), com representação **ponto fixo**, facilitando a normalização dos resultados.
+O kernel é armazenado em uma **ROM** de 9 valores (um para cada posição da janela 3×3), cada valor com sendo um inteiro de **4 bits signed**, facilitando a normalização dos resultados.
 
 ### Funcionamento Geral
 
