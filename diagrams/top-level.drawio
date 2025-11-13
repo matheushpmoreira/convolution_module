@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="JNH6m3BWxjOSdApR3wzN" name="Page-1">
-        <mxGraphModel dx="1551" dy="1113" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+        <mxGraphModel dx="1086" dy="779" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -10,7 +10,7 @@
                         <mxPoint x="805" y="730" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="5" value="&amp;nbsp;Ler&amp;nbsp;" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0.333;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="6" target="20" edge="1">
+                <mxCell id="5" value="read_mem" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0.333;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="6" target="20" edge="1">
                     <mxGeometry x="-0.907" relative="1" as="geometry">
                         <Array as="points">
                             <mxPoint x="460" y="480"/>
@@ -19,7 +19,7 @@
                         <mxPoint as="offset"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="29" value="amostra_pronta" style="edgeStyle=none;html=1;" parent="1" edge="1">
+                <mxCell id="29" value="sample_ready" style="edgeStyle=none;html=1;" parent="1" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <mxPoint x="1415" y="620" as="targetPoint"/>
                         <mxPoint x="1204.9999999999995" y="620" as="sourcePoint"/>
@@ -28,7 +28,7 @@
                 <mxCell id="6" value="&lt;span style=&quot;font-size: 28px;&quot;&gt;MODULO DE CONVOLUÇÂO&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="285" y="520" width="920" height="240" as="geometry"/>
                 </mxCell>
-                <mxCell id="10" value="amostra_in" style="edgeStyle=none;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;" parent="1" source="20" edge="1">
+                <mxCell id="10" value="sample_in" style="edgeStyle=none;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;" parent="1" source="20" edge="1">
                     <mxGeometry x="0.25" relative="1" as="geometry">
                         <mxPoint x="785" y="520" as="targetPoint"/>
                         <mxPoint x="785" y="440" as="sourcePoint"/>
@@ -59,7 +59,7 @@
                         <mxPoint x="285" y="700" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="16" value="&amp;nbsp;iniciar&amp;nbsp;" style="endArrow=classic;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" edge="1">
+                <mxCell id="16" value="enable" style="endArrow=classic;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="185" y="660" as="sourcePoint"/>
                         <mxPoint x="285" y="660" as="targetPoint"/>
@@ -95,7 +95,7 @@
                 <mxCell id="28" value="N bits&lt;div&gt;depende do tamanho da imagem&lt;/div&gt;&lt;div&gt;ceil(log2(width * height)&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
                     <mxGeometry x="990" y="330" width="130" height="90" as="geometry"/>
                 </mxCell>
-                <mxCell id="30" value="amostra_out" style="edgeStyle=none;html=1;" parent="1" edge="1">
+                <mxCell id="30" value="sample_out" style="edgeStyle=none;html=1;" parent="1" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <mxPoint x="1415" y="670" as="targetPoint"/>
                         <mxPoint x="1204.9999999999995" y="670" as="sourcePoint"/>
@@ -110,7 +110,7 @@
                 <mxCell id="34" value="8 bits" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
                     <mxGeometry x="1240" y="690" width="40" height="20" as="geometry"/>
                 </mxCell>
-                <mxCell id="35" value="&amp;nbsp;tudo_pronto&amp;nbsp;" style="edgeStyle=none;html=1;" edge="1" parent="1">
+                <mxCell id="35" value="done" style="edgeStyle=none;html=1;" edge="1" parent="1">
                     <mxGeometry relative="1" as="geometry">
                         <mxPoint x="1415" y="570" as="targetPoint"/>
                         <mxPoint x="1204.9999999999995" y="570" as="sourcePoint"/>
