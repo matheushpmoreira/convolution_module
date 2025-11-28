@@ -9,11 +9,11 @@ entity signed_adder is
 	port(
 		input_a : in  signed(N - 1 downto 0);
 		input_b : in  signed(N - 1 downto 0);
-		sum     : out signed(N downto 0)
+		sum     : out signed(N - 1 downto 0)
 	);
 end signed_adder;
 
 architecture arch of signed_adder is
 begin
-    sum <= resize(input_a, N+1) + resize(input_b, N+1);
+    sum <= resize(input_a, N) + resize(input_b, N);
 end architecture arch;
