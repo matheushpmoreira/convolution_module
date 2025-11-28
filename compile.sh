@@ -11,6 +11,10 @@ ghdl -a ./src/bo.vhdl
 ghdl -a ./src/bc.vhdl
 ghdl -a ./src/convolution_module.vhdl
 
+
+#Testbench Files
+ghdl -a ./tests/*.vhdl
+
 echo "Compilation Successful!"
 
 #ghdl -e tb_bo
