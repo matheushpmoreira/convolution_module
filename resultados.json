@@ -1,0 +1,32 @@
+{
+    "equipe": {
+        "nome": "02208B-Grupo-B",
+        "alunos": [
+            {"nome": "Matheus Henrique Perotti Moreira", "matricula": "22150181"},
+            {"nome": "Nairel Flores Prandini", "matricula": "23200449"},
+            {"nome": "Felipe Tomczak Farkuh", "matricula": "23200453"},
+            {"nome": "Vitor Pedrosa Brito dos Santos", "matricula": "23203910"},
+            {"nome": "Igor Machado", "matricula": "25102201"},
+            {"nome": "Bernard Silveira Damascena Lima Silva", "matricula": "25102944"},
+            {"nome": "João Gabriel Morandini Horn", "matricula": "25104406"},
+            {"nome": "Enzo Bartelt", "matricula": "25205305"}
+        ]
+    },
+    "quartus": {
+        "os": "Windows 11 25H2",
+        "versao": "13.0.1",
+        "fpga": {
+            "familia": "Cyclone II",
+            "dispositivo": "EP2C5AF256A7"
+        }
+    },
+    "utilizacao": {
+        "total combinational functions": 136,
+        "dedicated logic registers": 42,
+        "total pins": 38
+    },
+    "atraso": {
+        "Fmax": 120.88,
+        "unidade": "MHz"
+    }
+}
