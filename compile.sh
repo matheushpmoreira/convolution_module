@@ -13,7 +13,7 @@ ghdl -a ./src/convolution_module.vhdl
 
 
 #Testbench Files
-ghdl -a ./tests/*.vhdl
+ghdl -a ./src/tests/*.vhdl
 
 echo "Compilation Successful!"
 
