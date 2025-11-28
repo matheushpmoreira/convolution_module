@@ -37,12 +37,8 @@ architecture arch of bo is
     signal offset_y : unsigned(log2_ceil(img_height) - 1 downto 0);
 
 
-    signal coef_out : signed(7 downto 0);
+    signal coef_out : signed(3 downto 0);
 
-
-    signal sample_mult : signed(15 downto 0);
-
-    signal invalid : std_logic;
 begin
     
 
@@ -96,7 +92,7 @@ begin
             out_x   => offset_x,
             out_y   => offset_y,
             index   => count_i,
-            invalid => invalid
+            invalid => status.invalid
         );
     
 
