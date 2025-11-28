@@ -12,16 +12,17 @@ entity bo is
     );
 
     port(
-        clk            : in  std_logic; -- clock
-        R_CW, R_CH, R_CI : in  std_logic; -- reset contadores
-        E_CW, E_CH, E_CI : in  std_logic; -- iniciar contadores
 
-        sample_address : out unsigned(address_length(img_width, img_height) - 1 downto 0);
+        clk            : in  std_logic; -- clock
+
+        addr : out unsigned(address_length(img_width, img_height) - 1 downto 0);
 
         sample_in    : in  unsigned(7 downto 0);
         sample_out   : out unsigned(7 downto 0);
 
-        done_width, done_height, done_window : out std_logic
+        -- Sinais de controle e status
+        comandos      : in  tipo_comandos;
+        status        : out tipo_status
     );
 end entity bo;
 
@@ -52,10 +53,10 @@ begin
         )
         port map(
             clock  => clk,
-            reset  => R_CW,
-            enable => E_CW,
+            reset  => comandos.R_CW,
+            enable => comandos.E_CW,
             count  => count_w,
-            done   => done_width
+            done   => status.done_width
         );
     
     Counter_Height: entity work.generic_counter
@@ -65,10 +66,10 @@ begin
         )
         port map(
             clock  => clk,
-            reset  => R_CH,
-            enable => E_CH,
+            reset  => comandos.R_CH,
+            enable => comandos.E_CH,
             count  => count_h,
-            done   => done_height
+            done   => status.done_height
         );
 
     Counter_Index: entity work.generic_counter
@@ -78,10 +79,10 @@ begin
         )
         port map(
             clock  => clk,
-            reset  => R_CI,
-            enable => E_CI,
+            reset  => comandos.R_CI,
+            enable => comandos.E_CI,
             count  => count_i,
-            done   => done_window
+            done   => status.done_window
         );
     
     Offset_Indexer: entity work.offset_indexer
@@ -107,7 +108,7 @@ begin
         port map(
             in_x     => offset_x,
             in_y     => offset_y,
-            out_addr => sample_address
+            out_addr => addr
         );
     
     Kernel_indexer_comp : entity work.kernel_indexer
@@ -120,12 +121,6 @@ begin
         );
         
 
-    Multiplier: entity work.multiplier
-        port map(
-            a_signed   => coef_out,
-            b_unsigned => sample_in,
-            result_out => sample_mult
-        );
-
+ 
     
 end architecture;

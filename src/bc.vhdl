@@ -9,14 +9,18 @@ use work.convolution_pack.all;
 
 entity bc is
     port(
-        clk                                  : in  std_logic; -- clock (sinal de relógio)
-        rst                                  : in  std_logic; -- reset assíncrono ativo em nível alto
-
-        pronto                               : out std_logic;
-        iniciar                              : in  std_logic;
-        read_mem                             : out std_logic;
-        status                              : in tipo_status;
-        comandos    : out tipo_comandos
+        clk          : in  std_logic;   -- clock (sinal de relógio)
+        rst          : in  std_logic;   -- reset assíncrono ativo em nível alto
+        enable       : in  std_logic;
+        
+        -- Sinais de início pronto e leitura de memória
+        read_mem     : out std_logic;
+        done         : out std_logic;
+        sample_ready : out std_logic;
+        
+        --- Sinais de controle e status
+        status       : in  tipo_status;
+        comandos     : out tipo_comandos
     );
 end entity;
 -- Não altere o nome da entidade nem da arquitetura!
@@ -38,11 +42,11 @@ begin
         end if;
     end process;
 
-    process(Eatual, iniciar)
+    process(Eatual, enable)
     begin
         case Eatual is
             when S0 =>
-                if iniciar = '1' then
+                if enable = '1' then
                     Eprox <= S1;
                 else
                     Eprox <= S0;
@@ -64,12 +68,12 @@ begin
     begin
         --default
         read_mem <= '0';
-        pronto   <= '0';
-        comandos     <= (others => '0');
+        done   <= '0';
+        comandos <= (others => '0');
 
         case Eatual is
             when S0 =>
-                pronto <= '1';
+                done <= '1';
             when S1 =>
                 comandos <= (
                     others => '0'
@@ -77,11 +81,11 @@ begin
             when S2 =>
                 null;
             when S3 =>
-                comandos     <= (
+                comandos <= (
                     others => '0'
                 );
             when S4 =>
-                comandos     <= (
+                comandos <= (
                     others => '0'
                 );
             when S5 =>
