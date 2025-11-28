@@ -11,7 +11,7 @@ architecture sim of tb_signed_adder is
 
     signal s_input_a : signed(N_TB - 1 downto 0) := (others => '0');
     signal s_input_b : signed(N_TB - 1 downto 0) := (others => '0');
-    signal s_sum     : signed(N_TB downto 0);
+    signal s_sum     : signed(N_TB - 1 downto 0);
 
 begin
 

@@ -8,7 +8,8 @@ entity bo is
     generic(
         -- obrigatório ---
         img_width       : positive := 256; -- número de valores numa linha de imagem
-        img_height      : positive := 256 -- número de linhas de valores na imagem
+        img_height      : positive := 256; -- número de linhas de valores na imagem
+        KERNEL          : kernel_array
     );
 
     port(
@@ -36,8 +37,13 @@ architecture arch of bo is
     signal offset_x : unsigned(log2_ceil(img_width) - 1 downto 0);
     signal offset_y : unsigned(log2_ceil(img_height) - 1 downto 0);
 
-
-    signal coef_out : signed(3 downto 0);
+    signal coef_out      : signed(3 downto 0);
+    signal mul_result    : signed(15 downto 0);
+    signal acc_result    : signed(15 downto 0);
+    signal reg_acc_out   : signed(15 downto 0);
+    signal sample_result : signed(15 downto 0);
+    signal reg_mem_out   : unsigned(7 downto 0);
+    signal sample_cur    : unsigned(7 downto 0);
 
 begin
     
@@ -106,17 +112,79 @@ begin
             in_y     => offset_y,
             out_addr => addr
         );
+
+    Reg_Memory: entity work.unsigned_register
+        generic map(
+            G_NBITS => 8
+        )
+        port map(
+            clock    => clk,
+            reset    => comandos.R_MEM,
+            enable   => comandos.E_MEM,
+            data_in  => sample_in,
+            data_out => reg_mem_out
+        );
     
+    Mux_Invalid: entity work.unsigned_mux_2to1
+        generic map(
+            N => 8
+        )
+        port map(
+            sel  => comandos.s_invalid,
+            in_0 => reg_mem_out,
+            in_1 => resize("0", 8),
+            y    => sample_cur
+        );
+
     Kernel_indexer_comp : entity work.kernel_indexer
         generic map(
-            KERNEL => kernel_edge_detection
+            KERNEL => KERNEL
         )
         port map(
             index    => count_i,
             coef_out => coef_out
         );
         
+    Multiplier_Kernel_Sample: entity work.multiplier
+        port map(
+            a_signed   => resize(coef_out, 8),
+            b_unsigned => sample_cur,
+            result_out => mul_result
+        );
 
- 
+    Adder_Accumulator: entity work.signed_adder
+        generic map(
+            N => 16
+        )
+        port map(
+            input_a => mul_result,
+            input_b => reg_acc_out,
+            sum     => acc_result
+        );
+    
+    Reg_Accumulator: entity work.signed_register
+        generic map(
+            G_NBITS => 16
+        )
+        port map(
+            clock    => clk,
+            reset    => comandos.R_ACC,
+            enable   => comandos.E_ACC,
+            data_in  => acc_result,
+            data_out => reg_acc_out
+        );
+
+    Clip: entity work.clip
+        generic map(
+            N    => 16,
+            LOW  => 0,
+            HIGH => 255
+        )
+        port map(
+            value => reg_acc_out,
+            clipped_value => sample_result
+        );
+
+    sample_out <= resize(unsigned(sample_result), 8);
     
 end architecture;
