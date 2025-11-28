@@ -12,11 +12,11 @@ entity bc is
         clk                                  : in  std_logic; -- clock (sinal de relógio)
         rst                                  : in  std_logic; -- reset assíncrono ativo em nível alto
 
-        done_width, done_height, done_window : out std_logic;
         pronto                               : out std_logic;
         iniciar                              : in  std_logic;
         read_mem                             : out std_logic;
-        bcbo                                 : out tipo_bcbo
+        status                              : in tipo_status;
+        comandos    : out tipo_comandos
     );
 end entity;
 -- Não altere o nome da entidade nem da arquitetura!
@@ -65,29 +65,27 @@ begin
         --default
         read_mem <= '0';
         pronto   <= '0';
-        bcbo     <= (others => '0');
+        comandos     <= (others => '0');
 
         case Eatual is
             when S0 =>
                 pronto <= '1';
             when S1 =>
-                bcbo <= (
+                comandos <= (
                     others => '0'
                 );
             when S2 =>
                 null;
             when S3 =>
-                read_mem <= '1';
-                bcbo     <= (
+                comandos     <= (
                     others => '0'
                 );
             when S4 =>
-                read_mem <= '0';
-                bcbo     <= (
+                comandos     <= (
                     others => '0'
                 );
             when S5 =>
-                bcbo <= (
+                comandos <= (
                     others => '0'
                 );
         end case;

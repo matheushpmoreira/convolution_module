@@ -112,7 +112,7 @@ begin
     
     Kernel_indexer_comp : entity work.kernel_indexer
         generic map(
-            KERNEL => kernel_testing
+            KERNEL => kernel_edge_detection
         )
         port map(
             index    => count_i,
