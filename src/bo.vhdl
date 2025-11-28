@@ -45,6 +45,9 @@ architecture arch of bo is
     signal reg_mem_out   : unsigned(7 downto 0);
     signal sample_cur    : unsigned(7 downto 0);
 
+
+    signal resized_coef_out : signed(7 downto 0);
+
 begin
     
 
@@ -144,10 +147,12 @@ begin
             index    => count_i,
             coef_out => coef_out
         );
-        
+            
+    resized_coef_out <= resize(coef_out, 8);
+
     Multiplier_Kernel_Sample: entity work.multiplier
         port map(
-            a_signed   => resize(coef_out, 8),
+            a_signed   => resized_coef_out,
             b_unsigned => sample_cur,
             result_out => mul_result
         );
