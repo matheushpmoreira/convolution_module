@@ -3,96 +3,171 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.convolution_pack.all;
 
--- Bloco de Controle (BC) do circuito SAD.
--- Responsável por gerar os sinais de controle para o bloco operativo (BO),
--- geralmente por meio de uma FSM.
-
 entity bc is
     port(
-        clk          : in  std_logic;   -- clock (sinal de relógio)
-        rst          : in  std_logic;   -- reset assíncrono ativo em nível alto
+        clk          : in  std_logic;
+        rst          : in  std_logic;
         enable       : in  std_logic;
-        
-        -- Sinais de início pronto e leitura de memória
+        -- Sinais de saída diretos
         read_mem     : out std_logic;
         done         : out std_logic;
         sample_ready : out std_logic;
-        
-        --- Sinais de controle e status
+        -- Sinais de controle e status (Records)
         status       : in  tipo_status;
         comandos     : out tipo_comandos
     );
 end entity;
--- Não altere o nome da entidade nem da arquitetura!
 
 architecture behavior of bc is
 
-    type tipo_estado is (S0, S1, S2, S3, S4, S5);
+    -- Definição dos estados conforme a tabela da imagem
+    type tipo_estado is (
+        S_IDLE,
+        S_CALC_ADDR,
+        S_READ_MEM,
+        S_CALC_ACC,
+        S_INVALID,
+        S_INC_WIDTH,
+        S_INC_HEIGHT
+    );
 
     signal Eatual, Eprox : tipo_estado;
 
 begin
 
+    -- Processo de Registrador de Estado
     process(clk, rst)
     begin
         if rst = '1' then
-            Eatual <= S0;
+            Eatual <= S_IDLE;
         elsif rising_edge(clk) then
             Eatual <= Eprox;
         end if;
     end process;
 
-    process(Eatual, enable)
+    -- Processo de Lógica de Próximo Estado
+    process(Eatual, enable, status)
     begin
         case Eatual is
-            when S0 =>
+            -- Estado de Espera
+            when S_IDLE =>
                 if enable = '1' then
-                    Eprox <= S1;
+                    Eprox <= S_CALC_ADDR;
                 else
-                    Eprox <= S0;
+                    Eprox <= S_IDLE;
                 end if;
-            when S1 =>
-                Eprox <= S2;
-            when S2 =>
-                Eprox <= S3;
-            when S3 =>
-                Eprox <= S4;
-            when S4 =>
-                Eprox <= S2;
-            when S5 =>
-                Eprox <= S0;
+
+            -- 1. Calcula Endereço
+            when S_CALC_ADDR =>
+                -- Se o endereço calculado for inválido (borda), vai para S_INVALID
+                -- Se for válido, vai ler a memória
+                if status.invalid = '1' then
+                    Eprox <= S_INVALID;
+                else
+                    Eprox <= S_READ_MEM;
+                end if;
+
+            -- 2. Lê Memória (apenas se endereço válido)
+            when S_READ_MEM =>
+                Eprox <= S_CALC_ACC;
+
+            -- 3. Calcula/Acumula (Multiplicação e Soma)
+            when S_CALC_ACC =>
+                -- Verifica se terminou a janela (kernel 3x3)
+                if status.done_window = '1' then
+                    Eprox <= S_INC_WIDTH; -- Pixel pronto, avança coluna
+                else
+                    Eprox <= S_CALC_ADDR; -- Próximo item do kernel
+                end if;
+
+            -- Alternativa: Soma Zero (para bordas inválidas)
+            when S_INVALID =>
+                -- Mesma lógica de looping da janela
+                if status.done_window = '1' then
+                    Eprox <= S_INC_WIDTH;
+                else
+                    Eprox <= S_CALC_ADDR;
+                end if;
+
+            -- Incrementa Largura (Próximo Pixel da linha)
+            when S_INC_WIDTH =>
+                if status.done_width = '1' then
+                    Eprox <= S_INC_HEIGHT; -- Fim da linha, avança altura
+                else
+                    Eprox <= S_CALC_ADDR; -- Começa novo pixel na mesma linha
+                end if;
+
+            -- Incrementa Altura (Próxima Linha)
+            when S_INC_HEIGHT =>
+                if status.done_height = '1' then
+                    Eprox <= S_IDLE;    -- Fim da imagem
+                else
+                    Eprox <= S_CALC_ADDR; -- Começa nova linha
+                end if;
+
+            when others =>
+                Eprox <= S_IDLE;
         end case;
     end process;
 
+    -- Processo de Saídas (Decodificação baseada na tabela fornecida)
     process(Eatual)
     begin
-        --default
-        read_mem <= '0';
-        done   <= '0';
-        comandos <= (others => '0');
+        -- Resetar todos os comandos por padrão para evitar latches
+        comandos     <= (others => '0');
+        read_mem     <= '0';
+        done         <= '0';
+        sample_ready <= '0';
 
         case Eatual is
-            when S0 =>
-                done <= '1';
-            when S1 =>
-                comandos <= (
-                    others => '0'
-                );
-            when S2 =>
-                null;
-            when S3 =>
-                comandos <= (
-                    others => '0'
-                );
-            when S4 =>
-                comandos <= (
-                    others => '0'
-                );
-            when S5 =>
-                comandos <= (
-                    others => '0'
-                );
+            when S_IDLE =>
+                -- Tabela: R_CW=1, R_CH=1, R_CI=1, R_ACC=1, sample_ready=1, done=1
+                comandos.R_CW  <= '1';
+                comandos.R_CH  <= '1';
+                comandos.R_CI  <= '1';
+                comandos.R_ACC <= '1';
+                sample_ready   <= '1';
+                done           <= '1';
+
+            when S_CALC_ADDR =>
+                -- Tabela: E_ADDR=1
+                comandos.E_ADDR <= '1';
+
+            when S_READ_MEM =>
+                -- Tabela: E_MEM=1, read_mem=1
+                comandos.E_MEM <= '1';
+                read_mem       <= '1';
+
+            when S_CALC_ACC =>
+                -- Tabela: E_CI=1, E_ACC=1
+                -- Nota: Aqui E_CI age como incrementador do índice do Kernel (loop interno)
+                comandos.E_CI  <= '1';
+                comandos.E_ACC <= '1';
+
+            when S_INVALID =>
+                -- Tabela: E_CI=1, E_ACC=1, s_invalid=1
+                comandos.E_CI      <= '1';
+                comandos.E_ACC     <= '1';
+                comandos.s_invalid <= '1';
+
+            when S_INC_WIDTH =>
+                -- Tabela: E_CW=1, R_CI=1, R_ACC=1, sample_ready=1
+                -- Nota: Aqui E_CW incrementa a posição da coluna na imagem
+                comandos.E_CW  <= '1';
+                comandos.R_CI  <= '1';  -- Reseta índice do kernel para o próx pixel
+                comandos.R_ACC <= '1';  -- Reseta acumulador para o próx pixel
+                sample_ready   <= '1';
+
+            when S_INC_HEIGHT =>
+                -- Tabela: E_CH=1, R_CW=1, R_CI=1, R_ACC=1, sample_ready=1
+                -- Nota: Aqui E_CH incrementa a linha
+                comandos.E_CH  <= '1';
+                comandos.R_CW  <= '1';  -- Reseta coluna (voltar p/ esquerda)
+                comandos.R_CI  <= '1';
+                comandos.R_ACC <= '1';
+                sample_ready   <= '1';
+
         end case;
     end process;
 
-end architecture;
+end architecture behavior;
