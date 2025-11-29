@@ -48,9 +48,9 @@ architecture test of tb_convolution_module is
 	-- CENÁRIO DE TESTE:
 	-- Apenas o pixel do centro (índice 4) tem valor 30. O resto é 0.
 	constant RAM_DATA : memory_t := (
-		3, 4, 1,                        -- Linha 0
-		244, 2, 1,                       -- Linha 1 (Centro = 30)
-		7, 1, 3                          -- Linha 2
+		10, 20, 30,                        -- Linha 0
+		40, 50, 60,                       -- Linha 1 (Centro = 30)
+		70, 80, 90                          -- Linha 2
 	);
 
 begin
@@ -59,7 +59,7 @@ begin
 		generic map(
 			img_width  => IMG_W,
 			img_height => IMG_H,
-			KERNEL     => identity_kernel
+			KERNEL     => kernel_edge_detection
 		)
 		port map(
 			clk          => clk,

@@ -40,12 +40,11 @@ architecture arch of bo is
     signal coef_out      : signed(3 downto 0);
     signal mul_result    : signed(15 downto 0);
     signal acc_result    : signed(15 downto 0);
-    signal reg_acc_out   : signed(15 downto 0);
-    signal sample_result : unsigned(7 downto 0);
-
-
+    
     signal reg_mem_out   : unsigned(7 downto 0);
 
+
+    signal sample_result : unsigned(7 downto 0);
 
 begin
     
@@ -136,7 +135,7 @@ begin
             index    => count_i,
             coef_out => coef_out
         );
-
+            
 
     Multiplier_Kernel_Sample: entity work.multiplier
         port map(
@@ -145,34 +144,23 @@ begin
             result_out => mul_result
         );
 
-    Adder_Accumulator: entity work.signed_adder
-        generic map(
-            N => 16
-        )
+
+    Accumulator: entity work.accumulator
         port map(
-            input_a => mul_result,
-            input_b => reg_acc_out,
-            sum     => acc_result
-        );
-    
-    Reg_Accumulator: entity work.signed_register
-        generic map(
-            G_NBITS => 16
-        )
-        port map(
-            clock    => clk,
-            reset    => comandos.R_ACC,
+            clk      => clk,
+            rst      => comandos.R_ACC,
             enable   => comandos.E_ACC,
-            data_in  => acc_result,
-            data_out => reg_acc_out
+            data_in  => mul_result,
+            data_out => acc_result
         );
 
+        
     Clip: entity work.clip
         port map(
-            value => reg_acc_out,
+            value => acc_result,
             clipped_value => sample_result
         );
 
-    sample_out <=  sample_result;
+    sample_out <= sample_result;
     
 end architecture;
