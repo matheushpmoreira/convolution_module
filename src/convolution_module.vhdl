@@ -19,7 +19,7 @@ entity convolution_module is
 
 		addr         : out std_logic_vector(address_length(img_width, img_height) - 1 downto 0);
 		sample_out   : out std_logic_vector(7 downto 0);
-      sample_ready : out std_logic;     -- amostra pronta
+      	sample_ready : out std_logic;     -- amostra pronta
 		read_mem     : out std_logic;     -- ler memória
 		done         : out std_logic      -- pronto
 	);
