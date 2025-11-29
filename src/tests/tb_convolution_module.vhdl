@@ -57,7 +57,7 @@ begin
 		generic map(
 			img_width  => IMG_W,
 			img_height => IMG_H,
-			KERNEL     => identity_kernel   -- <--- AQUI ESTAVA O ERRO (estava identity_kernel)
+			KERNEL     => identity_kernel
 		)
 		port map(
 			clk          => clk,
@@ -124,12 +124,6 @@ begin
 				val_out := to_integer(unsigned(sample_out));
 
 				report "Pixel de Saida #" & integer'image(counter) & " | Valor: " & integer'image(val_out);
-
-				-- Se for o pixel central (assumindo que ele seja o 5º a sair, depende da sua varredura)
-				-- O valor esperado do calculo puro seria 860.
-				if val_out = 92 then
-					report ">> ATENCAO: Valor 92 detectado. Isso é (860 mod 256), indicando OVERFLOW." severity warning;
-				end if;
 
 				counter := counter + 1;
 			end if;
