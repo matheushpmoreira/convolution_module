@@ -37,6 +37,13 @@ package convolution_pack is
         -1, -1, -1
     );
 
+    constant identity_kernel : kernel_array := (
+        0, 0, 0,
+        0, 1, 0,
+        0, 0, 0
+    );
+    
+
     -- Calcula o número de bits necessários para indexar todas as amostras
     function address_length(img_width : positive; img_height : positive) return positive;
 

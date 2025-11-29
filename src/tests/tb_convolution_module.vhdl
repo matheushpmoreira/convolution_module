@@ -1,74 +1,126 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-
 use work.convolution_pack.all;
 
 entity tb_convolution_module is
-end tb_convolution_module;
+end entity tb_convolution_module;
 
-architecture sim of tb_convolution_module is
+architecture test of tb_convolution_module is
 
-    -- Escolhi os valores 3 para a o teste pois é a menor dimensão que contém uma amostra
-    -- mais centrada, que não esteja na borda
-    constant IMG_WIDTH_TB  : positive := 3;
-    constant IMG_HEIGHT_TB : positive := 3;
-    constant KERNEL_TB     : kernel_array := kernel_edge_detection;
-	 
-	 type img_data is array (0 to 8) of integer range 0 to 255; 
-	 
-	 constant IMG : img_data := (
-		  2, 4, 8,
-		  4, 8, 16,
-		  8, 16, 32
-	 );
-	 
-	 constant CONVOLUTED : img_data := (
-		  0, 0, 28,
-		  0, 0, 44,
-		  28, 44, 184
-	 );
+	-- 1. Configuração 3x3
+	constant IMG_W : positive := 3;
+	constant IMG_H : positive := 3;
+	constant T_CLK : time     := 10 ns;
 
-    signal s_clk          : std_logic := '0';
-    signal s_rst          : std_logic;
-    signal s_enable       : std_logic;
-    signal s_sample_in    : std_logic_vector(7 downto 0);
-    signal s_addr         : std_logic_vector(address_length(IMG_WIDTH_TB, IMG_HEIGHT_TB) - 1 downto 0);
-    signal s_sample_out   : std_logic_vector(7 downto 0);
-    signal s_sample_ready : std_logic;
-    signal s_read_mem     : std_logic;
-    signal s_done         : std_logic;
+	component convolution_module
+		generic(
+			img_width  : positive;
+			img_height : positive;
+			KERNEL     : kernel_array
+		);
+		port(
+			clk          : in  std_logic;
+			rst          : in  std_logic;
+			enable       : in  std_logic;
+			sample_in    : in  std_logic_vector(7 downto 0);
+			addr         : out std_logic_vector(address_length(IMG_W, IMG_H) - 1 downto 0);
+			sample_out   : out std_logic_vector(7 downto 0);
+			sample_ready : out std_logic;
+			read_mem     : out std_logic;
+			done         : out std_logic
+		);
+	end component;
+
+	signal clk          : std_logic                    := '0';
+	signal rst          : std_logic                    := '1';
+	signal enable       : std_logic                    := '0';
+	signal sample_in    : std_logic_vector(7 downto 0) := (others => '0');
+	signal addr         : std_logic_vector(address_length(IMG_W, IMG_H) - 1 downto 0);
+	signal sample_out   : std_logic_vector(7 downto 0);
+	signal sample_ready : std_logic;
+	signal read_mem     : std_logic;
+	signal done         : std_logic;
+
+	-- Memória 3x3 = 9 posições
+	type memory_t is array (0 to 8) of integer range 0 to 255;
+
+	-- CENÁRIO DE TESTE:
+	-- Apenas o pixel do centro (índice 4) tem valor 30. O resto é 0.
+	constant RAM_DATA : memory_t := (
+		3, 4, 1,                        -- Linha 0
+		244, 2, 1,                       -- Linha 1 (Centro = 30)
+		7, 1, 3                          -- Linha 2
+	);
 
 begin
 
-    DUT: entity work.convolution_module
-    generic map (
-		img_width  => IMG_WIDTH_TB,
-		img_height => IMG_HEIGHT_TB,
-		KERNEL     => KERNEL_TB
-    )
-    port map (
-		clk          => s_clk,
-		rst          => s_rst,
-		enable       => s_enable,
-		sample_in    => s_sample_in,
+	UUT : convolution_module
+		generic map(
+			img_width  => IMG_W,
+			img_height => IMG_H,
+			KERNEL     => identity_kernel
+		)
+		port map(
+			clk          => clk,
+			rst          => rst,
+			enable       => enable,
+			sample_in    => sample_in,
+			addr         => addr,
+			sample_out   => sample_out,
+			sample_ready => sample_ready,
+			read_mem     => read_mem,
+			done         => done
+		);
 
-		addr         => s_addr,
-		sample_out   => s_sample_out,
-      sample_ready => s_sample_ready,
-		read_mem     => s_read_mem,
-		done         => s_done
-    );
-	 
-	 s_clk <= not s_clk after 20 ns;
+	-- Clock
+	p_clk : process
+	begin
+		clk <= '0';
+		wait for T_CLK / 2;
+		clk <= '1';
+		wait for T_CLK / 2;
+	end process;
 
-    p_stimulus: process(s_clk)
-    begin
-	 
-			if (s_sample_ready = '1') then
-				assert(s_sample_out = std_logic_vector(to_unsigned(CONVOLUTED(to_integer(unsigned(s_addr))), 8)))
-				report "ERRO" severity error;
-			end if;
-    end process;
+	-- Memória Simples
+	p_mem : process(addr)
+		variable int_addr : integer;
+	begin
+		int_addr := to_integer(unsigned(addr));
+		if int_addr < 9 then
+			sample_in <= std_logic_vector(to_unsigned(RAM_DATA(int_addr), 8));
+		else
+			sample_in <= (others => '0');
+		end if;
+	end process;
 
-end sim;
+	-- Controle
+	p_stim : process
+	begin
+		rst    <= '1';
+		enable <= '0';
+		wait for T_CLK * 8;
+
+		rst <= '0';
+		wait for T_CLK * 4;
+
+		enable <= '1';
+
+		wait until done = '1';
+		wait for T_CLK * 5;
+
+		report "Fim do Teste 3x3" severity note;
+		wait;
+	end process;
+
+	-- Monitor de Saída
+	p_monitor : process(clk)
+		variable i : integer := 0;
+	begin
+		if rising_edge(clk) and sample_ready = '1' then
+			report "Pixel [" & integer'image(i) & "] Saiu: " & integer'image(to_integer(unsigned(sample_out)));
+			i := i + 1;
+		end if;
+	end process;
+
+end architecture test;

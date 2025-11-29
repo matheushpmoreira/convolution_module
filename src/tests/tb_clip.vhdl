@@ -3,80 +3,68 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity tb_clip is
+    -- Testbench não tem portas
 end tb_clip;
 
 architecture sim of tb_clip is
 
-    constant N_TB    : positive := 8;
-    
-    constant LOW_TB  : integer := -20;
-    constant HIGH_TB : integer := 20;
+    -- Componente a ser testado (UUT)
+    component clip
+        port(
+            value         : in  signed(15 downto 0);
+            clipped_value : out unsigned(7 downto 0)
+        );
+    end component;
 
-    signal s_value         : signed(N_TB - 1 downto 0) := (others => '0');
-    signal s_clipped_value : signed(N_TB - 1 downto 0);
+    -- Sinais de conexão
+    signal s_value         : signed(15 downto 0) := (others => '0');
+    signal s_clipped_value : unsigned(7 downto 0);
+
+    -- Constante de tempo
+    constant T_DELAY : time := 10 ns;
 
 begin
 
-    DUT: entity work.clip
-    generic map (
-        N    => N_TB,
-        LOW  => LOW_TB,
-        HIGH => HIGH_TB
-    )
-    port map (
-        value         => s_value,
-        clipped_value => s_clipped_value
-    );
+    -- Instanciação do UUT
+    uut : clip
+        port map(
+            value         => s_value,
+            clipped_value => s_clipped_value
+        );
 
-    p_stimulus: process
+    -- Processo de estímulo e verificação
+    p_stim : process
+        variable v_expected : integer;
     begin
-        ------------------------------------------------------------
-        -- Caso 1: Dentro do intervalo
-        -- Entrada: 0 | Esperado: 0
-        ------------------------------------------------------------
-        s_value <= to_signed(0, N_TB);
-        wait for 20 ns;
-        assert (s_clipped_value = to_signed(0, N_TB))
-        report "ERRO Caso 1: 0 esta dentro do intervalo, nao deveria mudar." severity error;
+        report "Iniciando Teste do Clip..." severity note;
 
-        ------------------------------------------------------------
-        -- Caso 2: Dentro do intervalo
-        -- Entrada: 15 | Esperado: 15
-        ------------------------------------------------------------
-        s_value <= to_signed(15, N_TB);
-        wait for 20 ns;
-        assert (s_clipped_value = to_signed(15, N_TB))
-        report "ERRO Caso 2: 15 esta dentro do intervalo (-20 a 20)." severity error;
+        -- Loop varrendo de -20 até 300 para cobrir todas as condições:
+        -- 1. Valores negativos (deve sair 0)
+        -- 2. Valores normais (0 a 255)
+        -- 3. Valores overflow (acima de 255, deve sair 255)
 
-        ------------------------------------------------------------
-        -- Caso 3: Acima do limite
-        -- Entrada: 50 | Esperado: 20
-        ------------------------------------------------------------
-        s_value <= to_signed(50, N_TB);
-        wait for 20 ns;
-        assert (s_clipped_value = to_signed(HIGH_TB, N_TB))
-        report "ERRO Caso 3: Entrada 50 deveria ser cortada para 20." severity error;
+        for i in -20 to 300 loop
+            s_value <= to_signed(i, 16);
 
-        ------------------------------------------------------------
-        -- Caso 4: Abaixo do limite
-        -- Entrada: -50 | Esperado: -20
-        ------------------------------------------------------------
-        s_value <= to_signed(-50, N_TB);
-        wait for 20 ns;
-        assert (s_clipped_value = to_signed(LOW_TB, N_TB))
-        report "ERRO Caso 4: Entrada -50 deveria ser cortada para -20." severity error;
+            wait for T_DELAY;
 
-        ------------------------------------------------------------
-        -- Caso 5: Teste de Borda Exata
-        -- Entrada: -21 | Esperado: -20
-        ------------------------------------------------------------
-        s_value <= to_signed(-21, N_TB);
-        wait for 20 ns;
-        assert (s_clipped_value = to_signed(LOW_TB, N_TB))
-        report "ERRO Caso 5: Borda inferior falhou." severity error;
+            -- Lógica de verificação (O que esperamos?)
+            if i < 0 then
+                v_expected := 0;
+            elsif i > 255 then
+                v_expected := 255;
+            else
+                v_expected := i;
+            end if;
 
-        report "Fim dos testes do clip." severity note;
-        wait;
+            -- Auto-checagem (Assert)
+            assert to_integer(s_clipped_value) = v_expected
+            report "Erro! Entrada: " & integer'image(i) & " | Saida Obtida: " & integer'image(to_integer(s_clipped_value)) & " | Esperado: " & integer'image(v_expected)
+            severity error;
+        end loop;
+
+        report "Simulacao concluida com sucesso!" severity note;
+        wait;                           -- Para a simulação
     end process;
 
 end sim;

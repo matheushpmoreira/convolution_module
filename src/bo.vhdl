@@ -41,7 +41,7 @@ architecture arch of bo is
     signal mul_result    : signed(15 downto 0);
     signal acc_result    : signed(15 downto 0);
     signal reg_acc_out   : signed(15 downto 0);
-    signal sample_result : signed(15 downto 0);
+    signal sample_result : unsigned(7 downto 0);
 
 
     signal reg_mem_out   : unsigned(7 downto 0);
@@ -168,16 +168,11 @@ begin
         );
 
     Clip: entity work.clip
-        generic map(
-            N    => 16,
-            LOW  => 0,
-            HIGH => 255
-        )
         port map(
             value => reg_acc_out,
             clipped_value => sample_result
         );
 
-    sample_out <= resize(unsigned(sample_result), 8);
+    sample_out <=  sample_result;
     
 end architecture;

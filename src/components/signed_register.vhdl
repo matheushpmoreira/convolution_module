@@ -22,7 +22,7 @@ begin
     process(clock, reset)
     begin
         if reset = '1' then
-            data_out <= resize("0", data_out'length);
+            data_out <= (others => '0');
         elsif rising_edge(clock) then
             if enable = '1' then
                 data_out <= data_in;
