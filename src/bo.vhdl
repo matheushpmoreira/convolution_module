@@ -17,6 +17,7 @@ entity bo is
         clk            : in  std_logic; -- clock
 
         addr : out unsigned(address_length(img_width, img_height) - 1 downto 0);
+       
 
         sample_in    : in  unsigned(7 downto 0);
         sample_out   : out unsigned(7 downto 0);
@@ -37,14 +38,17 @@ architecture arch of bo is
     signal offset_x : unsigned(log2_ceil(img_width) - 1 downto 0);
     signal offset_y : unsigned(log2_ceil(img_height) - 1 downto 0);
 
-    signal coef_out      : signed(3 downto 0);
-    signal mul_result    : signed(15 downto 0);
-    signal acc_result    : signed(15 downto 0);
+    signal addr_calc_out : unsigned(address_length(img_width, img_height) - 1 downto 0);
+
+    signal coef_out : signed(3 downto 0);
+
+
+    signal sample_reg_out : unsigned(7 downto 0);
+
+    signal mul_out : signed(15 downto 0);
+
+    signal acc_out : signed(15 downto 0);
     
-    signal reg_mem_out   : unsigned(7 downto 0);
-
-
-    signal sample_result : unsigned(7 downto 0);
 
 begin
     
@@ -52,7 +56,7 @@ begin
     Counter_Width: entity work.generic_counter
         generic map(
             G_NBITS     => log2_ceil(img_width),
-            G_MAX_COUNT => img_width
+            G_MAX_COUNT => img_width - 1
         )
         port map(
             clock  => clk,
@@ -65,7 +69,7 @@ begin
     Counter_Height: entity work.generic_counter
         generic map(
             G_NBITS     => log2_ceil(img_height),
-            G_MAX_COUNT => img_height
+            G_MAX_COUNT => img_height - 1
         )
         port map(
             clock  => clk,
@@ -78,7 +82,7 @@ begin
     Counter_Index: entity work.generic_counter
         generic map(
             G_NBITS     => 4,
-            G_MAX_COUNT => 8
+            G_MAX_COUNT => 9
         )
         port map(
             clock  => clk,
@@ -111,10 +115,22 @@ begin
         port map(
             in_x     => offset_x,
             in_y     => offset_y,
-            out_addr => addr
+            out_addr => addr_calc_out
         );
 
-    Reg_Memory: entity work.unsigned_register
+    Addr_Reg: entity work.unsigned_register
+        generic map(
+            G_NBITS => address_length(img_width, img_height)
+        )
+        port map(
+            clock    => clk,
+            reset    => comandos.R_ADDR,
+            enable   => comandos.E_ADDR,
+            data_in  => addr_calc_out,
+            data_out => addr
+        );
+    
+    Sample_in_Reg: entity work.unsigned_register
         generic map(
             G_NBITS => 8
         )
@@ -123,11 +139,11 @@ begin
             reset    => comandos.R_MEM,
             enable   => comandos.E_MEM,
             data_in  => sample_in,
-            data_out => reg_mem_out
+            data_out => sample_reg_out  
         );
     
 
-    Kernel_indexer_comp : entity work.kernel_indexer
+    kernel_indexer_inst : entity work.kernel_indexer
         generic map(
             KERNEL => KERNEL
         )
@@ -135,32 +151,30 @@ begin
             index    => count_i,
             coef_out => coef_out
         );
-            
-
-    Multiplier_Kernel_Sample: entity work.multiplier
+    
+    multiplier_inst : entity work.multiplier
         port map(
             a_signed   => coef_out,
-            b_unsigned => reg_mem_out,
-            result_out => mul_result
+            b_unsigned => sample_reg_out,
+            result_out => mul_out
         );
 
-
-    Accumulator: entity work.accumulator
+    accumulator_inst : entity work.accumulator
         port map(
             clk      => clk,
             rst      => comandos.R_ACC,
             enable   => comandos.E_ACC,
-            data_in  => mul_result,
-            data_out => acc_result
+            data_in  => mul_out,
+            data_out => acc_out
         );
-
-        
-    Clip: entity work.clip
-        port map(
-            value => acc_result,
-            clipped_value => sample_result
-        );
-
-    sample_out <= sample_result;
     
+    clip_inst : entity work.clip
+        port map(
+            value         => acc_out,
+            clipped_value => sample_out
+        );
+    
+    
+
+
 end architecture;

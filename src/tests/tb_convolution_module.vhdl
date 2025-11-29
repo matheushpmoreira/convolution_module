@@ -11,7 +11,7 @@ architecture test of tb_convolution_module is
 	-- 1. Configuração 3x3
 	constant IMG_W : positive := 3;
 	constant IMG_H : positive := 3;
-	constant T_CLK : time     := 10 ns;
+	constant T_CLK : time     := 20 ns;
 
 	component convolution_module
 		generic(
@@ -59,7 +59,7 @@ begin
 		generic map(
 			img_width  => IMG_W,
 			img_height => IMG_H,
-			KERNEL     => kernel_edge_detection
+			KERNEL     => identity_kernel
 		)
 		port map(
 			clk          => clk,
@@ -105,6 +105,11 @@ begin
 		wait for T_CLK * 4;
 
 		enable <= '1';
+
+		wait for T_CLK;
+
+		enable <= '0';
+		
 
 		wait until done = '1';
 		wait for T_CLK * 5;

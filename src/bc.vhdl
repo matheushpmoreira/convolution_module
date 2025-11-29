@@ -27,6 +27,7 @@ architecture behavior of bc is
         S_READ_MEM,
         S_CALC_ACC,
         S_INVALID,
+        S_WINDOW_DONE,
         S_INC_WIDTH,
         S_INC_HEIGHT
     );
@@ -61,11 +62,22 @@ begin
             when S_CALC_ADDR =>
                 -- Se o endereço calculado for inválido (borda), vai para S_INVALID
                 -- Se for válido, vai ler a memória
-                if status.invalid = '1' then
+                if status.done_window = '1' then
+                    Eprox <= S_WINDOW_DONE; -- Fim da imagem
+                elsif status.invalid = '1' then
                     Eprox <= S_INVALID;
                 else
                     Eprox <= S_READ_MEM;
                 end if;
+
+            when S_WINDOW_DONE =>
+                if status.done_height = '1' and status.done_width = '1' then
+                    Eprox <= S_IDLE;    -- Fim da imagem
+                elsif status.done_width = '1' then
+                    Eprox <= S_INC_HEIGHT; -- Fim da linha, avança altura
+                else
+                    Eprox <= S_INC_WIDTH; -- Pixel pronto, avança coluna
+                end if; 
 
             -- 2. Lê Memória (apenas se endereço válido)
             when S_READ_MEM =>
@@ -123,6 +135,8 @@ begin
                 comandos.R_CH  <= '1';
                 comandos.R_CI  <= '1';
                 comandos.R_ACC <= '1';
+                comandos.R_ADDR <= '1';
+                comandos.R_MEM  <= '1';
                 sample_ready   <= '1';
                 done           <= '1';
 
@@ -143,7 +157,13 @@ begin
 
             when S_INVALID =>
                 -- Tabela: E_CI=1, s_invalid=1
+                comandos.R_ADDR  <= '1';
                 comandos.E_CI      <= '1';
+            
+            when S_WINDOW_DONE =>
+                -- Tabela: sample_ready=1
+                sample_ready   <= '1';
+                
 
             when S_INC_WIDTH =>
                 -- Tabela: E_CW=1, R_CI=1, R_ACC=1, sample_ready=1
@@ -151,7 +171,6 @@ begin
                 comandos.E_CW  <= '1';
                 comandos.R_CI  <= '1';  -- Reseta índice do kernel para o próx pixel
                 comandos.R_ACC <= '1';  -- Reseta acumulador para o próx pixel
-                sample_ready   <= '1';
 
             when S_INC_HEIGHT =>
                 -- Tabela: E_CH=1, R_CW=1, R_CI=1, R_ACC=1, sample_ready=1
@@ -160,7 +179,6 @@ begin
                 comandos.R_CW  <= '1';  -- Reseta coluna (voltar p/ esquerda)
                 comandos.R_CI  <= '1';
                 comandos.R_ACC <= '1';
-                sample_ready   <= '1';
 
         end case;
     end process;
