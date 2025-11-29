@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 entity multiplier is
     port(
-        a_signed   : in  signed(7 downto 0);
+        a_signed   : in  signed(3 downto 0);
         b_unsigned : in  unsigned(7 downto 0);
         result_out : out signed(15 downto 0)  -- resultado completo sem overflow
     );

@@ -6,11 +6,7 @@ use work.convolution_pack.all;
 entity kernel_indexer is
     generic(
         -- O valor central foi ajustado para 7 pois 8 não cabe em 4 bits signed
-        KERNEL : kernel_array := (
-            -1, -1, -1,
-            -1, 7, -1,
-            -1, -1, -1
-        )
+        KERNEL : kernel_array
     );
     port(
         index    : in  unsigned(3 downto 0);

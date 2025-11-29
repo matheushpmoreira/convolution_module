@@ -104,9 +104,6 @@ begin
                 else
                     Eprox <= S_CALC_ADDR; -- Começa nova linha
                 end if;
-
-            when others =>
-                Eprox <= S_IDLE;
         end case;
     end process;
 
@@ -145,10 +142,8 @@ begin
                 comandos.E_ACC <= '1';
 
             when S_INVALID =>
-                -- Tabela: E_CI=1, E_ACC=1, s_invalid=1
+                -- Tabela: E_CI=1, s_invalid=1
                 comandos.E_CI      <= '1';
-                comandos.E_ACC     <= '1';
-                comandos.s_invalid <= '1';
 
             when S_INC_WIDTH =>
                 -- Tabela: E_CW=1, R_CI=1, R_ACC=1, sample_ready=1

@@ -17,5 +17,9 @@ ghdl -a ./src/tests/*.vhdl
 
 echo "Compilation Successful!"
 
-#ghdl -e tb_bo
-#ghdl -r tb_bo --vcd=tb_bo.vcd --stop-time=1000ns
+# Elaborate all testbenches automatically
+for file in ./src/tests/*.vhdl; do
+    entity=$(grep -i "entity" "$file" | head -n 1 | awk '{print $2}')
+    echo "Elaborating $entity..."
+    ghdl -e "$entity"
+done

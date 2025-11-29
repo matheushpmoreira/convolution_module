@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 entity clip is
 	generic (
-		N: positive := 9;
+		N: positive := 16;
 		LOW: integer := 0;
 		HIGH: integer := 255
 	);

@@ -18,8 +18,6 @@ package convolution_pack is
         E_ADDR, R_ADDR : std_logic;
         -- Registrador Sample_in (mem_reg)
         E_MEM, R_MEM   : std_logic;
-        -- Sinal de inválido
-        s_invalid      : std_logic;
     end record;
 
     type tipo_status is record
