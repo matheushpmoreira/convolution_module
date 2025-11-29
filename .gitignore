@@ -2,3 +2,4 @@
 .project
 *.vcd
 *.cf
+.library_mapping.xml

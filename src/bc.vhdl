@@ -137,7 +137,6 @@ begin
                 comandos.R_ACC <= '1';
                 comandos.R_ADDR <= '1';
                 comandos.R_MEM  <= '1';
-                sample_ready   <= '1';
                 done           <= '1';
 
             when S_CALC_ADDR =>
