@@ -8,7 +8,6 @@ end tb_clip;
 
 architecture sim of tb_clip is
 
-    -- Componente a ser testado (UUT)
     component clip is
         generic(
             LOW  : integer := 0;
@@ -72,7 +71,7 @@ begin
         end loop;
 
         report "Simulacao concluida com sucesso!" severity note;
-        wait;                           -- Para a simulação
+        wait;
     end process;
 
 end sim;

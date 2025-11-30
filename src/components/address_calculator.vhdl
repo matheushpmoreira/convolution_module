@@ -16,6 +16,7 @@ entity address_calculator is
 end entity address_calculator;
 
 architecture rtl of address_calculator is
+    
     -- Constante para o tamanho final do endereço
     constant C_ADDR_LEN : natural := out_addr'length;
 

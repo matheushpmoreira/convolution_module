@@ -4,12 +4,12 @@ use ieee.numeric_std.all;
 
 entity unsigned_register is
     generic(
-        G_NBITS     : positive := 8    -- Define o tamanho do registro (número de bits)
+        G_NBITS     : positive := 8
     );
     port(
         clock    : in  std_logic;
-        reset    : in  std_logic;         -- Assíncrono ativo alto
-        enable   : in  std_logic;         -- Habilita a contagem
+        reset    : in  std_logic;
+        enable   : in  std_logic;
         data_in  : in  unsigned(G_NBITS - 1 downto 0);
 
         data_out : out unsigned(G_NBITS - 1 downto 0)

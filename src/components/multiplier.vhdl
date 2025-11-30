@@ -11,17 +11,14 @@ entity multiplier is
 end entity multiplier;
 
 architecture rtl of multiplier is
-    -- sinais intermediários sem alterar a semântica
     signal a_ext : signed(15 downto 0);
     signal b_ext : signed(15 downto 0);
 begin
 
-    -- sign-extend a_signed para 16 bits
     a_ext <= resize(a_signed, 16);
 
     b_ext <= signed(resize(b_unsigned, 16));
 
-    -- multiplicação correta (sem integer / sem variável)
     result_out <= resize(a_ext * b_ext, 16);
 
 end architecture rtl;
