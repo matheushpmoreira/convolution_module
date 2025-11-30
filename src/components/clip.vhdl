@@ -15,7 +15,7 @@ end clip;
 
 architecture behavior of clip is
 begin
-	clip_value : process(all)
+	clip_value : process(value)
 	begin
 		if to_integer(value) > HIGH then
 			clipped_value <= to_unsigned(HIGH, clipped_value'length);
