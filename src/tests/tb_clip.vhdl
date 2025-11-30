@@ -9,7 +9,11 @@ end tb_clip;
 architecture sim of tb_clip is
 
     -- Componente a ser testado (UUT)
-    component clip
+    component clip is
+        generic(
+            LOW  : integer := 0;
+            HIGH : integer := 255
+        );
         port(
             value         : in  signed(15 downto 0);
             clipped_value : out unsigned(7 downto 0)
