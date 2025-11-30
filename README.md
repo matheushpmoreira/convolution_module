@@ -64,9 +64,46 @@ Componente que recebe as coordenadas atuais (**X, Y**) e o índice local da jane
 
 O cálculo é feito combinacionalmente, todos os endereços possiveis são calculados porém só o relevante é selecionado a partir de um decodificador usando a entrada index.
 
-## Máquina de estados
 
-O processo começa no estado Idle. O próximo estado é obrigatoriamente o começo do processo de convolução, entrando no primeiro de três estados do looping que realiza a operação. O primeiro estado irá calcular o endereço a ser lido da memória. Caso seja um endereço válido, no próximo estado será feita a leitura da memória, e após isso, no próximo estado, será feita a multiplicação e soma no acumulador. Caso o endereço seja inválido (em casos onde o índice atual é a borda da imagem), o estado de leitura da memória será pulado, e o próximo estado será um outro estado de soma que emite um sinal para somar zero ao acumulador. Fora do looping há estados para o incremento do valor de índice, tanto de linha quanto de coluna.
+
+# Bloco de Controle (BC) - Máquina de Estados
+
+Este documento descreve a lógica de controle implementada na entidade `bc` (Block Controller). Este bloco é responsável por orquestrar o fluxo de dados para uma operação de convolução de imagens, gerenciando o endereçamento de memória, a janela deslizante (kernel) e os acumuladores.
+
+## Visão Geral da FSM
+
+A Máquina de Estados Finita (FSM) gerencia a iteração sobre os pixels da imagem e, para cada pixel, a iteração sobre a janela de convolução (ex: kernel 3x3).
+
+### Fluxo de Operação
+1.  **Wait:** Aguarda sinal de `enable`.
+2.  **Processamento da Janela:** Para cada posição do kernel, calcula o endereço, verifica se é válido (tratamento de borda), lê a memória e acumula o resultado.
+3.  **Controle de Loop:**
+    * **Loop Interno (Janela):** Itera até completar o kernel (`done_window`).
+    * **Loop Horizontal (Width):** Avança para o próximo pixel da linha.
+    * **Loop Vertical (Height):** Ao fim da linha, avança para a próxima e reseta a coluna.
+
+## Tabela de Estados e Sinais de Saída
+
+A tabela abaixo detalha o comportamento de cada estado.
+**Nota:** Apenas os sinais listados na coluna "Sinais Ativos" são setados para `'1'` (High). Todos os outros sinais de saída permanecem em `'0'` (Low) para evitar *latches* indesejados.
+
+| Estado | Descrição | Sinais Ativos (`'1'`) |
+| :--- | :--- | :--- |
+| **S_IDLE** | Estado de espera. Reseta contadores e flags de conclusão. | `R_CW`, `R_CH`, `R_CI`, `R_ACC`, `R_ADDR`, `R_MEM`, `done` |
+| **S_CALC_ADDR** | Habilita o cálculo do endereço de memória do pixel atual da janela. | `E_ADDR` |
+| **S_READ_MEM** | Realiza a leitura da memória (se o endereço for válido). | `E_MEM`, `read_mem` |
+| **S_CALC_ACC** | Habilita a multiplicação/acumulação e incrementa índice do kernel. | `E_CI`, `E_ACC` |
+| **S_INVALID** | Trata bordas/pixels inválidos. Reseta endereço e avança índice do kernel. | `R_ADDR`, `E_CI` |
+| **S_WINDOW_DONE** | Indica que o cálculo da janela (convolução de 1 pixel) terminou. | `sample_ready` |
+| **S_INC_WIDTH** | Avança para a próxima coluna da imagem. Reseta acumulador e índice do kernel. | `E_CW`, `R_CI`, `R_ACC` |
+| **S_INC_HEIGHT** | Avança para a próxima linha da imagem. Reseta coluna, acumulador e índice. | `E_CH`, `R_CW`, `R_CI`, `R_ACC` |
+
+### Legenda dos Prefixos de Sinais
+* **E_... (Enable):** Habilita escrita, incremento ou leitura (ex: `E_ACC` habilita o registrador acumulador).
+* **R_... (Reset):** Reinicia um contador ou registrador específico (ex: `R_CW` zera o contador de largura/coluna).
+* **read_mem:** Sinal direto para a interface de memória.
+* **done / sample_ready:** Flags de status para o sistema externo.
+
 
 #### Source
 

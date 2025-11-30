@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="NCSc0W50iXrA2E2aMMlZ" name="Page-1">
-        <mxGraphModel dx="1086" dy="661" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+        <mxGraphModel dx="1086" dy="779" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -139,7 +139,7 @@
                 <mxCell id="33" value="Status&lt;div&gt;&lt;ul&gt;&lt;li&gt;done_window&lt;/li&gt;&lt;li&gt;done_width&lt;/li&gt;&lt;li&gt;done_height&lt;/li&gt;&lt;li&gt;Invalid&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
                     <mxGeometry x="55" y="60" width="220" height="140" as="geometry"/>
                 </mxCell>
-                <mxCell id="34" value="Comandos&lt;div&gt;&lt;ul&gt;&lt;li&gt;Enable / Reset&amp;nbsp; Contador Janela&lt;/li&gt;&lt;li&gt;Enable / Reset&amp;nbsp; Contador Linha&lt;/li&gt;&lt;li&gt;Enable / Reset&amp;nbsp; Contador Coluna&lt;/li&gt;&lt;li&gt;Enable / Reset&amp;nbsp; Acumulador&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;(acc_reg)&lt;/li&gt;&lt;li&gt;Enable / Reset Registrador Addr&amp;nbsp; (addr_reg)&lt;/li&gt;&lt;li&gt;Enable / Reset Registrador Sample_in&amp;nbsp; (mem_reg)&lt;/li&gt;&lt;li&gt;s_invalid&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+                <mxCell id="34" value="Comandos&lt;div&gt;&lt;ul&gt;&lt;li&gt;Enable / Reset&amp;nbsp; Contador Janela&lt;/li&gt;&lt;li&gt;Enable / Reset&amp;nbsp; Contador Linha&lt;/li&gt;&lt;li&gt;Enable / Reset&amp;nbsp; Contador Coluna&lt;/li&gt;&lt;li&gt;Enable / Reset&amp;nbsp; Acumulador&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;(acc_reg)&lt;/li&gt;&lt;li&gt;Enable / Reset Registrador Addr&amp;nbsp; (addr_reg)&lt;/li&gt;&lt;li&gt;Enable / Reset Registrador Sample_in&amp;nbsp; (mem_reg)&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
                     <mxGeometry x="340" y="60" width="340" height="140" as="geometry"/>
                 </mxCell>
                 <mxCell id="35" style="edgeStyle=none;html=1;" parent="1" edge="1">
