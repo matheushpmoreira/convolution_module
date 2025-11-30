@@ -7,29 +7,24 @@ use work.convolution_pack.all;
 entity bo is
     generic(
         -- obrigatório ---
-        img_width       : positive := 256; -- número de valores numa linha de imagem
-        img_height      : positive := 256; -- número de linhas de valores na imagem
-        KERNEL          : kernel_array
+        img_width  : positive := 256;   -- número de valores numa linha de imagem
+        img_height : positive := 256;   -- número de linhas de valores na imagem
+        KERNEL     : kernel_array
     );
 
     port(
+        clk        : in  std_logic;
 
-        clk            : in  std_logic; -- clock
-
-        addr : out unsigned(address_length(img_width, img_height) - 1 downto 0);
-       
-
-        sample_in    : in  unsigned(7 downto 0);
-        sample_out   : out unsigned(7 downto 0);
-
+        addr       : out unsigned(address_length(img_width, img_height) - 1 downto 0);
+        sample_in  : in  unsigned(7 downto 0);
+        sample_out : out unsigned(7 downto 0);
         -- Sinais de controle e status
-        comandos      : in  tipo_comandos;
-        status        : out tipo_status
+        comandos   : in  tipo_comandos;
+        status     : out tipo_status
     );
 end entity bo;
 
 architecture arch of bo is
-
 
     signal count_w : unsigned(log2_ceil(img_width) - 1 downto 0);
     signal count_h : unsigned(log2_ceil(img_height) - 1 downto 0);
@@ -42,18 +37,15 @@ architecture arch of bo is
 
     signal coef_out : signed(3 downto 0);
 
-
     signal sample_reg_out : unsigned(7 downto 0);
 
     signal mul_out : signed(15 downto 0);
 
     signal acc_out : signed(15 downto 0);
-    
 
 begin
-    
 
-    Counter_Width: entity work.generic_counter
+    Counter_Width : entity work.generic_counter
         generic map(
             G_NBITS     => log2_ceil(img_width),
             G_MAX_COUNT => img_width - 1
@@ -65,8 +57,8 @@ begin
             count  => count_w,
             done   => status.done_width
         );
-    
-    Counter_Height: entity work.generic_counter
+
+    Counter_Height : entity work.generic_counter
         generic map(
             G_NBITS     => log2_ceil(img_height),
             G_MAX_COUNT => img_height - 1
@@ -79,7 +71,7 @@ begin
             done   => status.done_height
         );
 
-    Counter_Index: entity work.generic_counter
+    Counter_Index : entity work.generic_counter
         generic map(
             G_NBITS     => 4,
             G_MAX_COUNT => 9
@@ -91,8 +83,8 @@ begin
             count  => count_i,
             done   => status.done_window
         );
-    
-    Offset_Indexer: entity work.offset_indexer
+
+    Offset_Indexer : entity work.offset_indexer
         generic map(
             img_width  => img_width,
             img_height => img_height
@@ -105,9 +97,8 @@ begin
             index   => count_i,
             invalid => status.invalid
         );
-    
 
-    Add_Calc: entity work.address_calculator
+    Add_Calc : entity work.address_calculator
         generic map(
             img_width  => img_width,
             img_height => img_height
@@ -118,7 +109,7 @@ begin
             out_addr => addr_calc_out
         );
 
-    Addr_Reg: entity work.unsigned_register
+    Addr_Reg : entity work.unsigned_register
         generic map(
             G_NBITS => address_length(img_width, img_height)
         )
@@ -129,8 +120,8 @@ begin
             data_in  => addr_calc_out,
             data_out => addr
         );
-    
-    Sample_in_Reg: entity work.unsigned_register
+
+    Sample_in_Reg : entity work.unsigned_register
         generic map(
             G_NBITS => 8
         )
@@ -139,9 +130,8 @@ begin
             reset    => comandos.R_MEM,
             enable   => comandos.E_MEM,
             data_in  => sample_in,
-            data_out => sample_reg_out  
+            data_out => sample_reg_out
         );
-    
 
     kernel_indexer_inst : entity work.kernel_indexer
         generic map(
@@ -151,7 +141,7 @@ begin
             index    => count_i,
             coef_out => coef_out
         );
-    
+
     multiplier_inst : entity work.multiplier
         port map(
             a_signed   => coef_out,
@@ -167,7 +157,7 @@ begin
             data_in  => mul_out,
             data_out => acc_out
         );
-    
+
     clip_inst : entity work.clip
         generic map(
             LOW  => 0,
@@ -177,8 +167,5 @@ begin
             value         => acc_out,
             clipped_value => sample_out
         );
-    
-    
-
 
 end architecture;

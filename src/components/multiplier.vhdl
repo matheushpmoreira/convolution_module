@@ -4,31 +4,24 @@ use ieee.numeric_std.all;
 
 entity multiplier is
     port(
-        a_signed   : in  signed(3 downto 0);
-        b_unsigned : in  unsigned(7 downto 0);
-        result_out : out signed(15 downto 0)  -- resultado completo sem overflow
+        a_signed   : in  signed(3 downto 0); -- 4-bit signed  (-8 .. +7)
+        b_unsigned : in  unsigned(7 downto 0); -- 8-bit unsigned (0 .. 255)
+        result_out : out signed(15 downto 0) -- 16-bit full product
     );
 end entity multiplier;
 
-
 architecture rtl of multiplier is
+    -- sinais intermediários sem alterar a semântica
+    signal a_ext : signed(15 downto 0);
+    signal b_ext : signed(15 downto 0);
 begin
-    process(a_signed, b_unsigned)
-        variable int_a    : integer;
-        variable int_b    : integer;
-        variable int_prod : integer;
-    begin
-        -- converte operandos para integer (mantendo sinal corretamente)
-        int_a := to_integer(a_signed);  -- pode ser negativo
-        int_b := to_integer(b_unsigned); -- >= 0
 
-        -- multiplica como integer (sem truncamento inesperado)
-        int_prod := int_a * int_b;
+    -- sign-extend a_signed para 16 bits
+    a_ext <= resize(a_signed, 16);
 
-        -- converte o resultado para signed(15 downto 0)
-        -- se int_prod estiver fora do intervalo -32768..32767, haverá truncamento ao converter;
-        -- se preferir saturação, veja abaixo.
-        result_out <= to_signed(int_prod, 16);
-    end process;
+    b_ext <= signed(resize(b_unsigned, 16));
+
+    -- multiplicação correta (sem integer / sem variável)
+    result_out <= resize(a_ext * b_ext, 16);
+
 end architecture rtl;
-
