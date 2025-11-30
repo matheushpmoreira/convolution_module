@@ -68,7 +68,7 @@ O cálculo é feito combinacionalmente, todos os endereços possiveis são calcu
 
 # Bloco de Controle (BC) - Máquina de Estados
 
-Este documento descreve a lógica de controle implementada na entidade `bc` (Block Controller). Este bloco é responsável por orquestrar o fluxo de dados para uma operação de convolução de imagens, gerenciando o endereçamento de memória, a janela deslizante (kernel) e os acumuladores.
+Este documento descreve a lógica de controle implementada na entidade `bc`. Este bloco é responsável por orquestrar o fluxo de dados para uma operação de convolução de imagens, gerenciando o endereçamento de memória, a janela deslizante (kernel) e os acumuladores.
 
 ## Visão Geral da FSM
 
