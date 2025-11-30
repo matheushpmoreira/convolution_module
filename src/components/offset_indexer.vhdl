@@ -23,8 +23,8 @@ end entity;
 architecture rtl of offset_indexer is
 begin
     process(in_x, in_y, index)
-        variable x_int, y_int   : integer;
-        variable tx_int, ty_int : integer;
+        variable x_int, y_int   : integer range -1 to img_width + 1;
+        variable tx_int, ty_int : integer range -1 to img_height + 1;
     begin
         -- converte entrada
         x_int := to_integer(in_x);
