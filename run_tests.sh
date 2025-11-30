@@ -4,10 +4,6 @@
 # Flags de compatibilidade (Mesmas usadas na compilação)
 FLAGS="--std=08 -fsynopsys"
 
-# Tempo máximo de simulação para evitar loops infinitos
-# Ajuste conforme o tamanho da sua imagem (ex: 10us, 1ms)
-STOP_TIME="12ms"
-
 # Diretório onde os arquivos de onda (.vcd) serão salvos
 WAVE_DIR="waves"
 mkdir -p $WAVE_DIR
@@ -39,7 +35,6 @@ for file in ./src/tests/*.vhdl; do
     # --assert-level=error faz o GHDL parar se houver um 'severity error' ou 'failure'
     ghdl -r $FLAGS "$entity" \
         --vcd="$WAVE_DIR/$entity.vcd" \
-        --stop-time="$STOP_TIME" \
         --assert-level=failure
 
     # Verifica o código de saída do comando anterior ($?)

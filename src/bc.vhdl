@@ -29,7 +29,8 @@ architecture behavior of bc is
         S_INVALID,
         S_WINDOW_DONE,
         S_INC_WIDTH,
-        S_INC_HEIGHT
+        S_INC_HEIGHT,
+        S_ALL_DONE
     );
 
     signal Eatual, Eprox : tipo_estado;
@@ -72,7 +73,7 @@ begin
 
             when S_WINDOW_DONE =>
                 if status.done_height = '1' and status.done_width = '1' then
-                    Eprox <= S_IDLE;    -- Fim da imagem
+                    Eprox <= S_ALL_DONE;    -- Fim da imagem
                 elsif status.done_width = '1' then
                     Eprox <= S_INC_HEIGHT; -- Fim da linha, avança altura
                 else
@@ -112,10 +113,17 @@ begin
             -- Incrementa Altura (Próxima Linha)
             when S_INC_HEIGHT =>
                 if status.done_height = '1' then
-                    Eprox <= S_IDLE;    -- Fim da imagem
+                    Eprox <= S_ALL_DONE;    -- Fim da imagem
                 else
                     Eprox <= S_CALC_ADDR; -- Começa nova linha
                 end if;
+
+
+            -- Estado Final (apenas para sinalizar conclusão e voltar ao idle)
+            when S_ALL_DONE =>
+                Eprox <= S_IDLE;
+            
+
         end case;
     end process;
 
@@ -137,7 +145,6 @@ begin
                 comandos.R_ACC <= '1';
                 comandos.R_ADDR <= '1';
                 comandos.R_MEM  <= '1';
-                done           <= '1';
 
             when S_CALC_ADDR =>
                 -- Tabela: E_ADDR=1
@@ -162,7 +169,7 @@ begin
             when S_WINDOW_DONE =>
                 -- Tabela: sample_ready=1
                 sample_ready   <= '1';
-                
+                comandos.R_CI  <= '1';  -- Reseta índice do kernel para o próx pixel
 
             when S_INC_WIDTH =>
                 -- Tabela: E_CW=1, R_CI=1, R_ACC=1, sample_ready=1
@@ -178,6 +185,14 @@ begin
                 comandos.R_CW  <= '1';  -- Reseta coluna (voltar p/ esquerda)
                 comandos.R_CI  <= '1';
                 comandos.R_ACC <= '1';
+            when S_ALL_DONE =>
+                comandos.R_CW   <= '1';
+                comandos.R_CH   <= '1';
+                comandos.R_CI   <= '1';
+                comandos.R_ACC  <= '1';
+                comandos.R_ADDR <= '1';
+                comandos.R_MEM  <= '1';
+                done <= '1';
 
         end case;
     end process;
