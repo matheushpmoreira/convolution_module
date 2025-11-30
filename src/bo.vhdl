@@ -169,6 +169,10 @@ begin
         );
     
     clip_inst : entity work.clip
+        generic map(
+            LOW  => 0,
+            HIGH => 255
+        )
         port map(
             value         => acc_out,
             clipped_value => sample_out
