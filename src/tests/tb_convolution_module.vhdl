@@ -39,7 +39,6 @@ architecture test of tb_convolution_module is
 	signal addr : std_logic_vector(address_length(IMG_W, IMG_H) - 1 downto 0) := (others => '0');
 	signal sample_out   : std_logic_vector(7 downto 0);
 	signal sample_ready : std_logic := '0';
-	signal read_mem     : std_logic := '0';
 	signal done         : std_logic := '0';
 
 	-- Memória 3x3
@@ -73,7 +72,7 @@ begin
 			addr         => addr,
 			sample_out   => sample_out,
 			sample_ready => sample_ready,
-			read_mem     => read_mem,
+			read_mem     => open,
 			done         => done
 		);
 
@@ -126,6 +125,7 @@ begin
 		variable val_out, val_expected : integer;
 	begin
 		if rising_edge(clk) then
+			
 			if sample_ready = '1' and enable = '1'  then
 				val_out      := to_integer(unsigned(sample_out));
 				val_expected := EXPECTED_DATA(counter);
