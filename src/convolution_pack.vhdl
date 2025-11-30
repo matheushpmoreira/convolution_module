@@ -37,6 +37,12 @@ package convolution_pack is
         -1, -1, -1
     );
 
+    constant kernel_sobel_top: kernel_array := (
+        1, 2, 1,
+        0, 0, 0,
+        -1, -2, -1
+    );
+
     constant identity_kernel : kernel_array := (
         0, 0, 0,
         0, 1, 0,
