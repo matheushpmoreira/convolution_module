@@ -51,13 +51,19 @@ architecture test of tb_convolution_module is
 		70, 80, 90                      -- 6, 7, 8
 	);
 
+	constant EXPECTED_DATA : memory_t := (
+		  0,   0,  80,
+		 50,   0, 150,
+		255, 250, 255
+	);
+
 begin
 
 	UUT : convolution_module
 		generic map(
 			img_width  => IMG_W,
 			img_height => IMG_H,
-			KERNEL     => identity_kernel
+			KERNEL     => kernel_edge_detection
 		)
 		port map(
 			clk          => clk,
@@ -117,15 +123,21 @@ begin
 	-- Monitor de Saída (Melhorado para ser Síncrono)
 	p_monitor : process(clk)
 		variable counter : integer := 0;
-		variable val_out : integer;
+		variable val_out, val_expected : integer;
 	begin
 		if rising_edge(clk) then
 			if sample_ready = '1' and enable = '1'  then
-				val_out := to_integer(unsigned(sample_out));
+				val_out      := to_integer(unsigned(sample_out));
+				val_expected := EXPECTED_DATA(counter);
+				counter      := counter + 1;
 
-				report "Pixel de Saida #" & integer'image(counter) & " | Valor: " & integer'image(val_out);
+				if val_out /= val_expected then
+					report "Pixel de Saida #" & integer'image(counter) & " | Valor: " & integer'image(val_out) & ", esperado: " & integer'image(val_expected);
+				end if;
 
-				counter := counter + 1;
+				-- report "Pixel de Saida #" & integer'image(counter) & " | Valor: " & integer'image(val_out);
+
+				-- counter := counter + 1;
 			end if;
 		end if;
 	end process;

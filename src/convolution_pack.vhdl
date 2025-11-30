@@ -32,9 +32,9 @@ package convolution_pack is
 
     -- Exemplo de kernel: Filtro de detecção de bordas
     constant kernel_edge_detection : kernel_array := (
-        1, 2, 3,
-        4, 5, 6,                 
-       -4,-5 , 7
+        -1, -1, -1,
+        -1,  7, -1,                 
+        -1, -1, -1
     );
 
     constant identity_kernel : kernel_array := (
