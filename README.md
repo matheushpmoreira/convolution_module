@@ -105,6 +105,49 @@ A tabela abaixo detalha o comportamento de cada estado.
 * **done / sample_ready:** Flags de status para o sistema externo.
 
 
+# Testbench: Módulo de Convolução (`tb_convolution_module`)
+
+Este ambiente de teste valida a integridade funcional do `convolution_module`. Ele simula o processamento completo de uma imagem de 3x3 pixels, atuando como o sistema externo (memória e controlador mestre) e realizando a verificação automática dos resultados (self-checking).
+
+## Cenários de Teste
+
+O testbench do TOP-LEVEL foi configurado para um cenário pequeno para facilitar a visualização da forma de onda e depuração.
+As saidas corretas foram pré-calculadas a mão.
+
+| Parâmetro | Configuração | Descrição |
+| :--- | :--- | :--- |
+| **Dimensões** | 3 x 3 pixels | Imagem mínima para testar bordas e centro. |
+| **Clock (`T_CLK`)** | 5 ns | Frequência de operação simulada de 200 MHz. |
+| **Kernel** | `kernel_edge_detection` | Filtro de detecção de bordas (definido no pacote). |
+| **Entradas (`RAM_DATA`)** | Gradiente 10 a 90 | Valores crescentes para facilitar rastreio (10, 20... 90). |
+| **Verificação** | Automática | Compara a saída com `EXPECTED_DATA` ciclo a ciclo. |
+
+## Estrutura e Processos
+
+A arquitetura do testbench é dividida em processos concorrentes que emulam o hardware periférico:
+
+* **`UUT` (Unit Under Test):** Instância do design principal com *generics* mapeados para 3x3.
+* **`p_clk` (Clock Gen):** Gera o sinal de clock perpétuo com período de 5ns.
+* **`p_mem` (Emulador de RAM):**
+    * Atua como uma memória assíncrona de leitura.
+    * Lê o sinal `addr` do UUT e disponibiliza o dado no `sample_in` imediatamente.
+    * Trata endereços fora do range (padding com 0).
+* **`p_stim` (Estímulos):**
+    * Gerencia a sequência de Reset.
+    * Gera o pulso de `enable` para iniciar a máquina.
+    * Encerra a simulação ao receber o sinal `done`.
+* **`p_monitor` (Verificador):**
+    * Sincronizado com o clock.
+    * Monitora a flag `sample_ready`.
+    * Compara o valor de `sample_out` com o array `EXPECTED_DATA`.
+    * **Report:** Imprime mensagens no console apenas se houver divergência (erro).
+
+## Como Interpretar a Saída
+
+1.  **Sucesso:** Se a simulação rodar e exibir apenas "Fim da Simulacao", o design está correto.
+2.  **Falha:** Mensagens no formato `Pixel de Saida #X | Valor: Y, esperado: Z` indicarão exatamente onde o cálculo diferiu do modelo esperado.
+
+
 #### Source
 
 O código-fonte do projeto está disponível em https://github.com/nairel-git/convolution_module

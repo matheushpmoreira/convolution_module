@@ -1,7 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.convolution_pack.all;          -- Certifique-se que o tipo kernel_array está aqui
+use work.convolution_pack.all;
 
 entity tb_convolution_module is
 end entity tb_convolution_module;
@@ -137,7 +137,6 @@ begin
 
 				-- report "Pixel de Saida #" & integer'image(counter) & " | Valor: " & integer'image(val_out);
 
-				-- counter := counter + 1;
 			end if;
 		end if;
 	end process;
