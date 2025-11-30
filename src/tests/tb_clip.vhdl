@@ -31,6 +31,10 @@ begin
 
     -- Instanciação do UUT
     uut : clip
+        generic map(
+            LOW  => 0,
+            HIGH => 255
+        )
         port map(
             value         => s_value,
             clipped_value => s_clipped_value
